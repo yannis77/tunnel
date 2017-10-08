@@ -18,5 +18,13 @@
     "(pug)"
   ],
   "author": "Yannis Tavlikos",
-  "license": "UNLICENCED"
+  "license": "UNLICENCED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yannis77/tunnel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yannis77/tunnel/issues"
+  },
+  "homepage": "https://github.com/yannis77/tunnel#readme"  
 }
