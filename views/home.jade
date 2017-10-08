@@ -51,16 +51,23 @@ html
 				mcircle.style.strokeWidth = stroke_width; // line width
 				svg.appendChild(mcircle);//add the circle to the svg
 			}
+			function drawPoint(angle,distance,label){
+					var x = center_x + radius * Math.cos(-angle*Math.PI/180) * distance;
+					var y = center_y + radius * Math.sin(-angle*Math.PI/180) * distance;
+			}
 		//Draws the tunnel. Keeping the tunnel (circle) at the center of the canvas there is no need to mess with coordinate transformations (Y axis) for that
 		function drawTunnel()
 		{
 			drawCircle(250, 250, 250, "blue", "none", "5,5", "2");
 			drawCircle(230, 250, 250, "blue", "none", "5,5", "1");
 			drawCircle(240, 250, 250, "black", "none", "0,0", "1");
-			drawCircle(5, 245, 490, "black", "black", "0,0", "0");
-			drawCircle(5, 245, 10, "black", "black", "0,0", "0");
-			drawCircle(5, 490, 245, "black", "black", "0,0", "0");
-			drawCircle(5, 10, 245, "black", "black", "0,0", "0");
+			//draw the points on the tunnel circumference
+			for (var angle=0;angle<360;angle+=30)
+			{
+					var x = 250 + 240 * Math.cos(-angle*Math.PI/180);
+					var y = 250 + 240 * Math.sin(-angle*Math.PI/180);
+					drawCircle(5, x, y, "black", "black", "0,0", "0" );
+			}
 		}
 			//draws a fixed point as 2 concentric circles
 		function drawPoint(pointX, pointY)
