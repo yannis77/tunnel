@@ -1,0 +1,107 @@
+doctype html
+html
+	head
+		title Tunnel
+		link(rel='stylesheet', href='/stylesheets/style.css')
+	//force getting data on load and refresh
+	body(onload="socket.emit('devs', 0);")
+		header
+			h1 Darstellung eines Bohrabschnitts
+	.container
+		.main-content
+		svg#svgV(xmlns='http://www.w3.org/2000/svg', style="border-style:solid;border-width:1px;" width='500', height='500')
+		br
+		input(type='range', value='0', name='devDepth', id="devDepth", min='0', max='#{maxsteps}', step='1', style='width:500px' onchange="socket.emit('devs', this.value);" oninput="socket.emit('devs', this.value);" tabindex="1" autofocus="true")
+		p Use slider to display deviations, preferably using keyboard arrows. Leftmost position displays start points only, rightmost position displays all deviations. Intermediate positions display step by step deviations.
+	script(src='/socket.io/socket.io.js')
+	script(src="https://d3js.org/d3.v4.min.js")
+	script.
+		//receive data from server.
+		var socket = io.connect('http://localhost:3000')
+		socket.on('devs', function (drills) {
+			NewDrills=drills;
+			clearUniverse();
+			drawUniverse();
+		})
+		//clears our canvas
+		function clearUniverse()
+		{//Get svg container and remove all elements
+			var svg = document.getElementById('svgV'); 
+			while (svg.lastChild) {
+				svg.removeChild(svg.lastChild);
+				}
+		}
+		//sanity check for objects and arrays
+		function isEmpty(val)
+		{
+			return (val === undefined || val == null || val.length <= 0) ? true : false;
+		}
+		//draws a circle on the svg using passed parameters
+		function drawCircle(r, cx, cy, stroke, fill, stroke_dasharray, stroke_width)
+			{
+				var svg = document.getElementById('svgV'); //Get svg container
+				var mcircle = document.createElementNS("http://www.w3.org/2000/svg", 'circle'); //Create a circle
+				//-set circle data
+				mcircle.setAttribute("r",r);//radius
+				mcircle.setAttribute("cx",cx);//center x
+				mcircle.setAttribute("cy",cy);//center y
+				mcircle.style.stroke = stroke;//line color
+				mcircle.style.fill = fill;//fill color
+				mcircle.style.strokeDasharray = stroke_dasharray;//line type, dashed e.g. 2.2 or solid 0.0
+				mcircle.style.strokeWidth = stroke_width; // line width
+				svg.appendChild(mcircle);//add the circle to the svg
+			}
+		//Draws the tunnel. Keeping the tunnel (circle) at the center of the canvas there is no need to mess with coordinate transformations (Y axis) for that
+		function drawTunnel()
+		{
+			drawCircle(250, 250, 250, "blue", "none", "5,5", "2");
+			drawCircle(230, 250, 250, "blue", "none", "5,5", "1");
+			drawCircle(240, 250, 250, "black", "none", "0,0", "1");
+			drawCircle(5, 245, 490, "black", "black", "0,0", "0");
+			drawCircle(5, 245, 10, "black", "black", "0,0", "0");
+			drawCircle(5, 490, 245, "black", "black", "0,0", "0");
+			drawCircle(5, 10, 245, "black", "black", "0,0", "0");
+		}
+			//draws a fixed point as 2 concentric circles
+		function drawPoint(pointX, pointY)
+			{
+				drawCircle(20, pointX, pointY, "black", "lightgray", "0,0", "0");
+				drawCircle(5, pointX, pointY, "black", "gray", "0,0", "0");
+			}
+			//draws a deviated point as 2 concentric circles 
+		function drawDeviation(pointX, pointY, devXEW, devYNS)
+			{
+				drawCircle(20, devXEW, devYNS, "#fa5b4d", "none", "2,2", "1");
+				drawCircle(5, devXEW, devYNS, "#fa5b4d", "none", "2,2", "1");
+			}
+		//main drawing function
+		function drawUniverse()
+			{
+				//first draw the tunnel..
+				drawTunnel();
+				//unless we don't have valid data...
+				if(isEmpty(NewDrills))
+				{
+					return;
+				}
+				var len=NewDrills.length;
+				//for each drill...
+				for(var i=0; i<len; i++)
+				{//check we got an array...
+					if(isEmpty(NewDrills[i]))
+					{
+						continue;
+					}//..draw the fixed points...
+					drawPoint(NewDrills[i].cx, NewDrills[i].cy);
+					//..check we have deviation data...
+					if(isEmpty(NewDrills[i].deviations))
+					{
+						continue;
+					}//for all deviations..
+					var dlen=NewDrills[i].deviations.length;
+					for(var k=0; k<dlen; k++)
+					{//..draw the deviations
+						drawDeviation(NewDrills[i].cx, NewDrills[i].cy, NewDrills[i].cx + NewDrills[i].deviations[k].devX, NewDrills[i].cy + NewDrills[i].deviations[k].devY)
+					}//for all deviations end
+				}//for each drill end
+			}
