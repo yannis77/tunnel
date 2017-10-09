@@ -17,7 +17,7 @@ html
 	script(src="https://d3js.org/d3.v4.min.js")
 	script.
 		//receive data from server.
-		var socket = io.connect('http://localhost:3000')
+		var socket = io.connect('https://tunnel-deviations.herokuapp.com/:3000')
 		socket.on('devs', function (drills) {
 			NewDrills=drills;
 			clearUniverse();
