@@ -14,10 +14,9 @@ html
 		input(type='range', value='0', name='devDepth', id="devDepth", min='0', max='#{maxsteps}', step='1', style='width:500px' onchange="socket.emit('devs', this.value);" oninput="socket.emit('devs', this.value);" tabindex="1" autofocus="true")
 		p Use slider to display deviations, preferably using keyboard arrows. Leftmost position displays start points only, rightmost position displays all deviations. Intermediate positions display step by step deviations.
 	script(src='/socket.io/socket.io.js')
-	script(src="https://d3js.org/d3.v4.min.js")
 	script.
 		//receive data from server.
-		var socket = io.connect('https://tunnel-deviations.herokuapp.com/:3000')
+		var socket = io.connect('http://localhost:3000')
 		socket.on('devs', function (drills) {
 			NewDrills=drills;
 			clearUniverse();
